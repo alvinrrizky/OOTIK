@@ -213,6 +213,13 @@ const App: React.FC = () => {
         setActivities(prev => [newActivity, ...prev]);
     };
 
+    const handleDeleteActivity = (id: number) => {
+        if (window.confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+            setActivities(prev => prev.filter(act => act.id !== id));
+            setIsActivityDetailModalOpen(false);
+        }
+    };
+
     const handleSummarizeTeam = async () => {
         setIsSummaryModalOpen(true);
         setIsSummaryLoading(true);
@@ -323,6 +330,7 @@ const App: React.FC = () => {
                     activity={selectedActivity}
                     onComplete={(id) => { setActivityToCompleteId(id); setIsEvidenceModalOpen(true); setIsActivityDetailModalOpen(false); }}
                     onReopen={handleReopenTask}
+                    onDelete={handleDeleteActivity}
                 />
                 
                 {activityToComplete && (

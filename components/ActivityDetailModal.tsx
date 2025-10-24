@@ -8,9 +8,10 @@ interface ActivityDetailModalProps {
   activity: Activity | null;
   onComplete: (id: number) => void;
   onReopen: (id: number) => void;
+  onDelete: (id: number) => void;
 }
 
-const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClose, activity, onComplete, onReopen }) => {
+const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClose, activity, onComplete, onReopen, onDelete }) => {
   if (!isOpen || !activity) return null;
 
   const categoryIcon = CATEGORIES.find(c => c.name === activity.category)?.icon ?? '📝';
@@ -104,22 +105,31 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClo
             </div>
           )}
         </div>
-        <div className="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 dark:border-slate-700">
-          {activity.status !== 'Completed' ? (
-            <button
-              onClick={() => onComplete(activity.id)}
-              className="text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            >
-              Complete Task
-            </button>
-          ) : (
-            <button
-              onClick={() => onReopen(activity.id)}
-              className="text-white bg-amber-500 hover:bg-amber-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            >
-              Re-open Task
-            </button>
-          )}
+        <div className="flex items-center justify-between p-6 space-x-2 border-t border-slate-200 dark:border-slate-700">
+          <button
+            onClick={() => onDelete(activity.id)}
+            className="text-red-700 bg-red-100 hover:bg-red-200 dark:text-red-400 dark:bg-red-500/10 dark:hover:bg-red-500/20 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+          >
+            Delete
+          </button>
+          
+          <div className="flex items-center space-x-2">
+              {activity.status !== 'Completed' ? (
+                <button
+                  onClick={() => onComplete(activity.id)}
+                  className="text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                >
+                  Complete Task
+                </button>
+              ) : (
+                <button
+                  onClick={() => onReopen(activity.id)}
+                  className="text-white bg-amber-500 hover:bg-amber-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                >
+                  Re-open Task
+                </button>
+              )}
+          </div>
         </div>
       </div>
     </div>
