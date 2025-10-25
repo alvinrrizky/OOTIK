@@ -244,13 +244,13 @@ const App: React.FC = () => {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const teamActivitiesText = teamData.map(member => {
         const memberActivities = activities.filter(a => a.assignee.id === member.id && a.date === date);
-        if (memberActivities.length === 0) return `Member: ${member.name}\nTasks: No tasks for this day.`;
-        return `Member: ${member.name}\nTasks:\n${memberActivities.map(task => `- ${task.title} (Status: ${task.status})`).join('\n')}`;
+        if (memberActivities.length === 0) return `Anggota: ${member.name}\nTugas: Tidak ada tugas untuk hari ini.`;
+        return `Anggota: ${member.name}\nTugas:\n${memberActivities.map(task => `- ${task.title} (Status: ${task.status})`).join('\n')}`;
       }).join('\n\n');
 
       const prompt = `
-        Based on the following team activity data for ${date}, generate a concise summary of the team's progress. 
-        Highlight any blockers or pending tasks. If a member has no tasks, mention that. Format the output as Markdown.
+        Berdasarkan data aktivitas tim berikut untuk tanggal ${date}, buat ringkasan singkat tentang kemajuan tim. 
+        Sorot setiap hambatan atau tugas yang tertunda. Jika seorang anggota tidak memiliki tugas, sebutkan itu. Format output sebagai Markdown dalam Bahasa Indonesia.
         
         Data:
         ${teamActivitiesText}
@@ -266,7 +266,7 @@ const App: React.FC = () => {
 
     } catch (error) {
       console.error("Error generating summary:", error);
-      setSummaryContent("<p>Sorry, I couldn't generate the summary right now. Please check the console for errors.</p>");
+      setSummaryContent("<p>Maaf, saya tidak dapat membuat ringkasan saat ini. Silakan periksa konsol untuk kesalahan.</p>");
     } finally {
       setIsSummaryLoading(false);
     }
@@ -295,13 +295,13 @@ const App: React.FC = () => {
       });
 
       const userActivitiesText = userActivities.length > 0 
-        ? userActivities.map(task => `- ${task.title} (Status: ${task.status}, Due: ${task.date})`).join('\n')
-        : "No activities for this period.";
+        ? userActivities.map(task => `- ${task.title} (Status: ${task.status}, Tenggat: ${task.date})`).join('\n')
+        : "Tidak ada aktivitas untuk periode ini.";
 
       const prompt = `
-        Based on the following activity data for ${user.name} for ${date.toLocaleString('default', { month: 'long', year: 'numeric' })}, 
-        generate a concise summary of their progress. Highlight key accomplishments, areas where tasks are pending, 
-        and overall productivity. Format the output as Markdown.
+        Berdasarkan data aktivitas berikut untuk ${user.name} selama ${date.toLocaleString('id-ID', { month: 'long', year: 'numeric' })}, 
+        buat ringkasan singkat tentang kemajuannya. Sorot pencapaian utama, area di mana tugas tertunda, 
+        dan produktivitas secara keseluruhan. Format output sebagai Markdown dalam Bahasa Indonesia.
         
         Data:
         ${userActivitiesText}
@@ -317,7 +317,7 @@ const App: React.FC = () => {
 
     } catch (error) {
       console.error("Error generating my activity summary:", error);
-      setSummaryContent("<p>Sorry, I couldn't generate the summary right now. Please check the console for errors.</p>");
+      setSummaryContent("<p>Maaf, saya tidak dapat membuat ringkasan saat ini. Silakan periksa konsol untuk kesalahan.</p>");
     } finally {
       setIsSummaryLoading(false);
     }

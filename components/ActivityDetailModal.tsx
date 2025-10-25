@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { Activity } from '../types.ts';
 import { CATEGORIES } from '../constants.tsx';
@@ -155,9 +156,6 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClo
                 <>
                   <button onClick={() => onSetInProgress(activity.id)} className="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                     In Progress
-                  </button>
-                  <button onClick={() => onPending(activity.id)} className="text-white bg-amber-500 hover:bg-amber-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                    Pending
                   </button>
                   <button onClick={() => onComplete(activity.id)} className="text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                     Complete Task
