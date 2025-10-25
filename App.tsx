@@ -325,11 +325,11 @@ const App: React.FC = () => {
 
 
   const renderView = () => {
+    const myActivities = activities.filter(a => a.assignee.id === user.id);
     switch (activeView) {
       case 'dashboard':
-        return <CalendarView activities={activities} onActivityClick={handleViewDetails} />;
+        return <CalendarView activities={myActivities} onActivityClick={handleViewDetails} />;
       case 'history':
-        const myActivities = activities.filter(a => a.assignee.id === user.id);
         return <HistoryView 
                     activities={myActivities} 
                     onViewDetails={handleViewDetails} 
@@ -345,7 +345,7 @@ const App: React.FC = () => {
                     isSummaryLoading={isSummaryLoading}
                 />;
       default:
-        return <CalendarView activities={activities} onActivityClick={handleViewDetails} />;
+        return <CalendarView activities={myActivities} onActivityClick={handleViewDetails} />;
     }
   };
 

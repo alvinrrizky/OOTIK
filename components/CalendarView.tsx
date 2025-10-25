@@ -162,51 +162,49 @@ const CalendarView: React.FC<CalendarViewProps> = ({ activities, onActivityClick
                     <span className="ml-3 text-2xl font-normal text-slate-500 dark:text-slate-400">{formattedSelectedWeekday}</span>
                 </h1>
 
-                <div className="mt-8 flex-1">
-                    {activitiesForSelectedDate.length > 0 ? (
-                        <ul className="space-y-4 h-full overflow-y-auto pr-2">
-                            {activitiesForSelectedDate.map(activity => (
-                                <li key={activity.id}>
-                                    <button
-                                        onClick={() => onActivityClick(activity.id)}
-                                        className="w-full text-left p-4 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-600 transition-all duration-200 flex items-start space-x-4"
-                                    >
-                                        <span className="text-2xl pt-1 flex-shrink-0">{CATEGORIES.find(c => c.name === activity.category)?.icon ?? '📝'}</span>
-                                        <div className="flex-grow min-w-0">
-                                            <p className="font-semibold text-slate-800 dark:text-slate-100">{activity.title}</p>
-                                            {activity.description && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{activity.description}</p>}
-                                            
-                                            <div className="flex items-center space-x-3 mt-3">
-                                                <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${statusStyles[activity.status]}`}>
-                                                    {activity.status}
-                                                </span>
-                                                {activity.time && (
-                                                    <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
-                                                        <svg className="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                        <span>{formatTime(activity.time)}</span>
-                                                    </div>
-                                                )}
-                                            </div>
+                {activitiesForSelectedDate.length > 0 ? (
+                    <ul className="mt-8 flex-1 space-y-4 overflow-y-auto pr-2">
+                        {activitiesForSelectedDate.map(activity => (
+                            <li key={activity.id}>
+                                <button
+                                    onClick={() => onActivityClick(activity.id)}
+                                    className="w-full text-left p-4 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-600 transition-all duration-200 flex items-start space-x-4"
+                                >
+                                    <span className="text-2xl pt-1 flex-shrink-0">{CATEGORIES.find(c => c.name === activity.category)?.icon ?? '📝'}</span>
+                                    <div className="flex-grow min-w-0">
+                                        <p className="font-semibold text-slate-800 dark:text-slate-100">{activity.title}</p>
+                                        {activity.description && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{activity.description}</p>}
+                                        
+                                        <div className="flex items-center space-x-3 mt-3">
+                                            <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${statusStyles[activity.status]}`}>
+                                                {activity.status}
+                                            </span>
+                                            {activity.time && (
+                                                <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
+                                                    <svg className="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <span>{formatTime(activity.time)}</span>
+                                                </div>
+                                            )}
                                         </div>
-                                        {/* FIX: Removed XP/points display as it's not part of the Activity type. */}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <div className="text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg flex flex-col items-center justify-center h-full">
-                            <div className="mx-auto w-16 h-16 text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700/50 rounded-full flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                            <p className="mt-5 text-lg font-semibold text-slate-600 dark:text-slate-300">Tidak ada activity</p>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Tidak ada jadwal kegiatan untuk hari ini.</p>
+                                    </div>
+                                    {/* FIX: Removed XP/points display as it's not part of the Activity type. */}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div className="mt-8 flex-1 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg flex flex-col items-center justify-center">
+                        <div className="mx-auto w-16 h-16 text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700/50 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
                         </div>
-                    )}
-                </div>
+                        <p className="mt-5 text-lg font-semibold text-slate-600 dark:text-slate-300">Tidak ada activity</p>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Tidak ada jadwal kegiatan untuk hari ini.</p>
+                    </div>
+                )}
             </div>
         </div>
     </>
