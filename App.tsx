@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import MarkdownIt from 'markdown-it';
 
@@ -13,7 +13,8 @@ import ActivityDetailModal from './components/ActivityDetailModal';
 import EvidenceModal from './components/EvidenceModal';
 import SummaryModal from './components/SummaryModal';
 import SplashScreen from './components/SplashScreen';
-import type { Activity, ActivityStatus, Evidence, User, ViewType } from './types';
+import type { Activity, ActivityStatus, Evidence, User, ViewType, Team } from './types';
+import { ICONS } from './constants';
 
 // Mock Data
 const mockUsers: User[] = [
@@ -23,7 +24,6 @@ const mockUsers: User[] = [
         avatar: 'https://i.pravatar.cc/150?u=alex',
         position: 'Senior Frontend Developer',
         email: 'alex.johnson@example.com',
-        role: 'Ketua Tim',
     },
     {
         id: 2,
@@ -31,7 +31,6 @@ const mockUsers: User[] = [
         avatar: 'https://i.pravatar.cc/150?u=siti',
         position: 'Backend Developer',
         email: 'siti@example.com',
-        role: 'Anggota',
     },
     {
         id: 3,
@@ -39,7 +38,6 @@ const mockUsers: User[] = [
         avatar: 'https://i.pravatar.cc/150?u=joko',
         position: 'DevOps Engineer',
         email: 'joko@example.com',
-        role: 'Anggota',
     },
     {
         id: 4,
@@ -47,8 +45,26 @@ const mockUsers: User[] = [
         avatar: 'https://i.pravatar.cc/150?u=ani',
         position: 'QA Engineer',
         email: 'ani@example.com',
-        role: 'Anggota',
     },
+];
+
+const mockTeams: Team[] = [
+    {
+        id: 1,
+        name: 'Tim Management TIK',
+        members: [
+            { user: mockUsers[0], role: 'Ketua Tim' },
+            { user: mockUsers[1], role: 'Anggota' },
+        ]
+    },
+    {
+        id: 2,
+        name: 'Tim Keamanan',
+        members: [
+            { user: mockUsers[2], role: 'Ketua Tim' },
+            { user: mockUsers[3], role: 'Anggota' },
+        ]
+    }
 ];
 
 const mockActivities: Activity[] = [
@@ -125,7 +141,7 @@ const mockActivities: Activity[] = [
 
 const App: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>(mockActivities);
-  const [teamData] = useState<User[]>(mockUsers);
+  const [teams] = useState<Team[]>(mockTeams);
   const [user] = useState<User>(mockUsers[0]);
   const [activeView, setActiveView] = useState<ViewType>('dashboard');
   const [theme, setTheme] = useState('light');
@@ -140,8 +156,23 @@ const App: React.FC = () => {
   const [summaryTitle, setSummaryTitle] = useState('');
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const [isAppLoading, setIsAppLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
 
   const md = new MarkdownIt();
+
+  const allUsers = useMemo(() => {
+    const userMap = new Map<number, User>();
+    teams.forEach(team => {
+        team.members.forEach(member => {
+            if (!userMap.has(member.user.id)) {
+                userMap.set(member.user.id, member.user);
+            }
+        });
+    });
+    return Array.from(userMap.values());
+  }, [teams]);
+
 
   useEffect(() => {
     const localTheme = localStorage.getItem('theme');
@@ -155,6 +186,11 @@ const App: React.FC = () => {
     }, 1500);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleViewChange = (view: ViewType) => {
+    setActiveView(view);
+    setIsSidebarOpen(false);
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -180,30 +216,38 @@ const App: React.FC = () => {
   }
 
   const handleUpdateStatus = (id: number, status: ActivityStatus, evidence?: Evidence) => {
-      setActivities(prev => prev.map(activity => {
-          if (activity.id === id) {
-              const updatedActivity = { ...activity, status };
-              if (evidence) {
-                  if (status === 'Completed' && activity.reopened) {
-                      updatedActivity.reopenEvidence = evidence;
-                  } else {
-                      updatedActivity.evidence = evidence;
-                  }
-              }
-              if (status === 'In Progress') {
-                  delete updatedActivity.evidence;
-              }
-              if (status === 'Re-Open') {
-                  updatedActivity.reopened = true;
-                  updatedActivity.status = 'To Do';
-              }
-              return updatedActivity;
-          }
-          return activity;
-      }));
-      setIsDetailModalOpen(false);
-      setIsEvidenceModalOpen(false);
-      setActivityToUpdate(null);
+    setActivities(prev => prev.map(activity => {
+        if (activity.id === id) {
+            const updatedActivity = { ...activity, status };
+
+            // Handle evidence submission
+            if (evidence) {
+                // If completing a task that was in 'Re-Open' state
+                if (activity.status === 'Re-Open' && status === 'Completed') {
+                    updatedActivity.reopenEvidence = evidence;
+                } 
+                // For the first completion or for pending status
+                else if (status === 'Completed' || status === 'Pending') {
+                    updatedActivity.evidence = evidence;
+                }
+            }
+            
+            // Handle specific status change logic
+            if (status === 'In Progress') {
+                delete updatedActivity.evidence;
+            }
+
+            if (status === 'Re-Open') {
+                updatedActivity.reopened = true;
+            }
+
+            return updatedActivity;
+        }
+        return activity;
+    }));
+    setIsDetailModalOpen(false);
+    setIsEvidenceModalOpen(false);
+    setActivityToUpdate(null);
   };
 
   const handleDelete = (id: number) => {
@@ -242,7 +286,7 @@ const App: React.FC = () => {
         throw new Error("API_KEY environment variable not set");
       }
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const teamActivitiesText = teamData.map(member => {
+      const teamActivitiesText = allUsers.map(member => {
         const memberActivities = activities.filter(a => a.assignee.id === member.id && a.date === date);
         if (memberActivities.length === 0) return `Anggota: ${member.name}\nTugas: Tidak ada tugas untuk hari ini.`;
         return `Anggota: ${member.name}\nTugas:\n${memberActivities.map(task => `- ${task.title} (Status: ${task.status})`).join('\n')}`;
@@ -338,7 +382,7 @@ const App: React.FC = () => {
                 />;
       case 'team':
         return <TeamView 
-                    teamData={teamData} 
+                    teamData={allUsers} 
                     activities={activities} 
                     onViewActivityDetails={handleViewDetails}
                     onGenerateSummary={generateTeamSummary}
@@ -354,25 +398,37 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`flex h-screen p-4 gap-4 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 ${isAppLoading ? 'opacity-0' : 'opacity-100'}`}>
+    <div className={`relative min-h-screen lg:flex text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 ${isAppLoading ? 'opacity-0' : 'opacity-100'}`}>
         <Sidebar 
-            teamData={teamData}
+            teamData={teams}
+            isSidebarOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            activeView={activeView}
+            onViewChange={handleViewChange}
         />
         
-        <div className="flex flex-col flex-1 bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+        <div className="flex flex-col flex-1 bg-slate-100 dark:bg-slate-900 lg:rounded-none lg:shadow-none lg:border-none rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
             <Header 
               user={user} 
-              activeView={activeView}
-              onViewChange={(view) => setActiveView(view)}
               onNewTaskClick={() => setIsNewTaskModalOpen(true)}
               theme={theme}
               toggleTheme={toggleTheme}
+              onMenuClick={() => setIsSidebarOpen(true)}
             />
-            <main className="flex-1 p-8 overflow-y-auto">
+            <main className="flex-1 p-2 sm:p-4 md:p-8 overflow-y-auto">
                 {renderView()}
             </main>
         </div>
         
+        {/* Floating Action Button for Mobile */}
+        <button
+            onClick={() => setIsNewTaskModalOpen(true)}
+            className="md:hidden fixed bottom-6 right-6 z-40 flex items-center justify-center w-14 h-14 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
+            aria-label="Create New Task"
+        >
+          {ICONS.PLUS}
+        </button>
+
         <NewActivityModal 
           isOpen={isNewTaskModalOpen} 
           onClose={() => setIsNewTaskModalOpen(false)}

@@ -68,33 +68,29 @@ const TeamView: React.FC<TeamViewProps> = ({ teamData, activities, onViewActivit
 
   return (
     <div className="animate-fade-in">
-        <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Team Overview</h1>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-                 <div>
-                    <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        className="custom-date-time-picker w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 p-2.5"
-                    />
-                </div>
-                <div className="w-full max-w-xs">
-                    <input
-                        type="text"
-                        placeholder="Search member..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 p-2.5"
-                    />
-                </div>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white self-start">Team Overview</h1>
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                 <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="custom-date-time-picker w-full sm:w-auto bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 p-2.5"
+                />
+                <input
+                    type="text"
+                    placeholder="Search member..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full sm:w-auto bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 p-2.5"
+                />
                 <button 
                     onClick={() => onGenerateSummary(selectedDate)} 
                     disabled={isSummaryLoading}
-                    className="flex-shrink-0 flex items-center justify-center space-x-2 bg-sky-500 hover:bg-sky-600 text-white font-bold py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md disabled:bg-sky-300 dark:disabled:bg-sky-800 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto flex-shrink-0 flex items-center justify-center space-x-2 bg-sky-500 hover:bg-sky-600 text-white font-bold py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md disabled:bg-sky-300 dark:disabled:bg-sky-800 disabled:cursor-not-allowed"
                 >
                     {isSummaryLoading ? (
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -102,6 +98,7 @@ const TeamView: React.FC<TeamViewProps> = ({ teamData, activities, onViewActivit
                         <span className="text-xl">✨</span>
                     )}
                     <span className="hidden sm:inline">{isSummaryLoading ? 'Generating...' : 'Rekap Aktivitas Tim'}</span>
+                    <span className="sm:hidden">{isSummaryLoading ? 'Generating...' : 'Rekap'}</span>
                 </button>
             </div>
         </div>

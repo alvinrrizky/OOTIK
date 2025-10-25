@@ -8,13 +8,26 @@ export interface User {
   avatar: string;
   position: string;
   email: string;
-  role: 'Ketua Tim' | 'Anggota';
+  // Role is now part of TeamMember
 }
 
 export interface Evidence {
   type: 'file' | 'text';
   content: string;
   fileName?: string;
+}
+
+export type Role = 'Ketua Tim' | 'Anggota';
+
+export interface TeamMember {
+  user: User;
+  role: Role;
+}
+
+export interface Team {
+  id: number;
+  name: string;
+  members: TeamMember[];
 }
 
 export interface Activity {

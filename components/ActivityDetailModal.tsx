@@ -1,6 +1,6 @@
 
 import React from 'react';
-import type { Activity } from '../types.ts';
+import type { Activity, Evidence } from '../types.ts';
 import { CATEGORIES } from '../constants.tsx';
 
 interface ActivityDetailModalProps {
@@ -15,19 +15,52 @@ interface ActivityDetailModalProps {
   onDelete: (id: number) => void;
 }
 
+const EvidenceDisplay: React.FC<{ evidence: Evidence, title: string, color: 'emerald' | 'yellow' | 'sky' }> = ({ evidence, title, color }) => {
+    const isUrl = (text: string) => {
+        try {
+            new URL(text);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    };
+    
+    const colorStyles = {
+        emerald: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300',
+        yellow: 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/20 text-yellow-700 dark:text-yellow-300',
+        sky: 'bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20 text-sky-700 dark:text-sky-300',
+    };
+
+    return (
+        <div>
+            <h4 className="text-md font-bold text-slate-800 dark:text-slate-100 mb-2">{title}</h4>
+            <div className={`p-3 rounded-lg border ${colorStyles[color]}`}>
+                {evidence.type === 'file' ? (
+                    <a
+                        href={evidence.content}
+                        download={evidence.fileName}
+                        className="flex items-center space-x-2 text-sm hover:underline"
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        <span>{evidence.fileName}</span>
+                    </a>
+                ) : isUrl(evidence.content) ? (
+                    <a href={evidence.content} target="_blank" rel="noopener noreferrer" className="text-sm hover:underline break-all">
+                        {evidence.content}
+                    </a>
+                ) : (
+                    <p className="text-sm italic">"{evidence.content}"</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+
 const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClose, activity, onComplete, onPending, onSetInProgress, onReopen, onBackToTodo, onDelete }) => {
   if (!isOpen || !activity) return null;
 
   const categoryIcon = CATEGORIES.find(c => c.name === activity.category)?.icon ?? '📝';
-
-  const isUrl = (text: string) => {
-    try {
-        new URL(text);
-        return true;
-    } catch (_) {
-        return false;
-    }
-  }
 
   const formatTime = (timeString: string) => {
     const [hour, minute] = timeString.split(':');
@@ -87,60 +120,23 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClo
           </div>
 
           {activity.status === 'Pending' && activity.evidence && (
-            <div>
-              <h4 className="text-md font-bold text-slate-800 dark:text-slate-100 mb-2">Reason for Pending</h4>
-              <div className="p-3 bg-yellow-50 dark:bg-yellow-500/10 rounded-lg border border-yellow-200 dark:border-yellow-500/20">
-                <p className="text-sm text-yellow-700 dark:text-yellow-300 italic">"{activity.evidence.content}"</p>
-              </div>
-            </div>
+            <EvidenceDisplay evidence={activity.evidence} title="Reason for Pending" color="yellow" />
           )}
 
-          {(activity.status === 'Completed' || activity.status === 'Re-Open') && activity.evidence && (
-            <div>
-              <h4 className="text-md font-bold text-slate-800 dark:text-slate-100 mb-2">Evidence of Completion</h4>
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg border border-emerald-200 dark:border-emerald-500/20">
-                {activity.evidence.type === 'file' ? (
-                    <a 
-                      href={activity.evidence.content} 
-                      download={activity.evidence.fileName}
-                      className="flex items-center space-x-2 text-sm text-emerald-700 dark:text-emerald-300 hover:underline"
-                    >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                        <span>{activity.evidence.fileName}</span>
-                    </a>
-                ) : isUrl(activity.evidence.content) ? (
-                    <a href={activity.evidence.content} target="_blank" rel="noopener noreferrer" className="text-sm text-emerald-700 dark:text-emerald-300 hover:underline break-all">
-                        {activity.evidence.content}
-                    </a>
-                ) : (
-                    <p className="text-sm text-emerald-700 dark:text-emerald-300 italic">"{activity.evidence.content}"</p>
-                )}
-              </div>
-            </div>
+          {activity.evidence && (activity.status === 'Completed' || activity.status === 'Re-Open') && (
+            <EvidenceDisplay 
+              evidence={activity.evidence} 
+              title={activity.status === 'Re-Open' ? 'Evidence of Initial Completion' : 'Evidence of Completion'} 
+              color="emerald" 
+            />
           )}
 
-          {activity.status === 'Completed' && activity.reopenEvidence && (
-            <div>
-                <h4 className="text-md font-bold text-slate-800 dark:text-slate-100 mb-2">Evidence of Re-Open</h4>
-                <div className="p-3 bg-sky-50 dark:bg-sky-500/10 rounded-lg border border-sky-200 dark:border-sky-500/20">
-                    {activity.reopenEvidence.type === 'file' ? (
-                        <a 
-                        href={activity.reopenEvidence.content} 
-                        download={activity.reopenEvidence.fileName}
-                        className="flex items-center space-x-2 text-sm text-sky-700 dark:text-sky-300 hover:underline"
-                        >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                            <span>{activity.reopenEvidence.fileName}</span>
-                        </a>
-                    ) : isUrl(activity.reopenEvidence.content) ? (
-                        <a href={activity.reopenEvidence.content} target="_blank" rel="noopener noreferrer" className="text-sm text-sky-700 dark:text-sky-300 hover:underline break-all">
-                            {activity.reopenEvidence.content}
-                        </a>
-                    ) : (
-                        <p className="text-sm text-sky-700 dark:text-sky-300 italic">"{activity.reopenEvidence.content}"</p>
-                    )}
-                </div>
-            </div>
+          {activity.reopenEvidence && activity.status === 'Completed' && (
+             <EvidenceDisplay 
+              evidence={activity.reopenEvidence} 
+              title="Evidence of Re-Completion" 
+              color="emerald" 
+            />
           )}
         </div>
         <div className="flex items-center justify-between p-6 space-x-2 border-t border-slate-200 dark:border-slate-700">
@@ -153,11 +149,9 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClo
           
           <div className="flex items-center space-x-2">
               {activity.status === 'To Do' && (
-                <>
                   <button onClick={() => onSetInProgress(activity.id)} className="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                     In Progress
                   </button>
-                </>
               )}
               {activity.status === 'In Progress' && (
                 <>
@@ -178,16 +172,14 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClo
                   </button>
               )}
               {activity.status === 'Pending' && (
-                <>
                   <button onClick={() => onSetInProgress(activity.id)} className="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                     In Progress
                   </button>
-                </>
               )}
               {activity.status === 'Completed' && !activity.reopened && (
                 <button
                   onClick={() => onReopen(activity.id)}
-                  className="text-white bg-amber-500 hover:bg-amber-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  className="text-white bg-sky-500 hover:bg-sky-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
                   Re-open Task
                 </button>

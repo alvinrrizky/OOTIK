@@ -1,27 +1,20 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ICONS } from '../constants.tsx';
-import type { User, ViewType } from '../types.ts';
+import type { User } from '../types.ts';
 
 interface HeaderProps {
   user: User;
-  activeView: ViewType;
-  onViewChange: (view: ViewType) => void;
   onNewTaskClick: () => void;
   theme: string;
   toggleTheme: () => void;
+  onMenuClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ user, activeView, onViewChange, onNewTaskClick, theme, toggleTheme }) => {
+const Header: React.FC<HeaderProps> = ({ user, onNewTaskClick, theme, toggleTheme, onMenuClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const navItems: {id: ViewType, label: string}[] = [
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'history', label: 'My Activity' },
-    { id: 'team', label: 'Team' },
-  ];
-  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -33,43 +26,37 @@ const Header: React.FC<HeaderProps> = ({ user, activeView, onViewChange, onNewTa
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-transparent dark:bg-transparent border-b border-slate-200 dark:border-slate-700 transition-colors duration-300">
-      <div className="max-w-screen-2xl mx-auto px-8">
+    <header className="sticky top-0 z-30 w-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 transition-colors duration-300">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-8">
         <div className="flex items-center justify-between h-20">
           
-          {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-sky-500">
-              OOTIK
-            </h1>
-            <span className="hidden sm:block ml-3 text-sm font-semibold text-slate-500 dark:text-slate-400 border-l-2 pl-3 border-slate-300 dark:border-slate-600">
-              Output Of TIK
-            </span>
+             {/* Hamburger Menu Icon */}
+            <button 
+                onClick={onMenuClick}
+                className="lg:hidden mr-4 p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                aria-label="Open sidebar"
+            >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            {/* Logo */}
+            <div className="flex items-center">
+              <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-sky-500">
+                OOTIK
+              </h1>
+              <span className="hidden sm:block ml-3 text-sm font-semibold text-slate-500 dark:text-slate-400 border-l-2 pl-3 border-slate-300 dark:border-slate-600">
+                Output Of TIK
+              </span>
+            </div>
           </div>
           
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-2">
-            {navItems.map(item => (
-              <button
-                key={item.id}
-                onClick={() => onViewChange(item.id)}
-                className={`
-                  px-4 py-2 rounded-lg text-md font-semibold transition-colors
-                  ${activeView === item.id 
-                    ? 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300' 
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'}
-                `}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-          
           {/* Right side actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <button
               onClick={onNewTaskClick}
-              className="hidden sm:flex items-center justify-center space-x-2 bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md"
+              className="hidden md:flex items-center justify-center space-x-2 bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md"
             >
               {ICONS.PLUS}
               <span className="text-sm">New Task</span>
