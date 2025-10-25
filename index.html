@@ -20,6 +20,16 @@
         /* Dark mode background */
         background-color: #0f172a; /* slate-900 */
       }
+      /* Custom styles for date/time picker icons */
+      /* This ensures the picker icon is black in light mode */
+      .custom-date-time-picker {
+        color-scheme: light;
+        cursor: pointer;
+      }
+      /* This ensures the picker icon is white in dark mode */
+      html.dark .custom-date-time-picker {
+        color-scheme: dark;
+      }
     </style>
   <script type="importmap">
 {

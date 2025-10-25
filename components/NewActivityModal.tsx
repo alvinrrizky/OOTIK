@@ -71,11 +71,11 @@ const NewActivityModal: React.FC<NewActivityModalProps> = ({ isOpen, onClose, on
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="date" className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Due Date <span className="text-red-500">*</span></label>
-                <input type="date" id="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5" required />
+                <input type="date" id="date" value={date} onChange={(e) => setDate(e.target.value)} className="custom-date-time-picker bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5" required />
               </div>
               <div>
                 <label htmlFor="time" className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Time (Optional)</label>
-                <input type="time" id="time" value={time} onChange={(e) => setTime(e.target.value)} className="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5" />
+                <input type="time" id="time" value={time} onChange={(e) => setTime(e.target.value)} className="custom-date-time-picker bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5" />
               </div>
             </div>
              <div>

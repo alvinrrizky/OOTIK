@@ -76,7 +76,7 @@ const TeamView: React.FC<TeamViewProps> = ({ teamData, activities, onViewActivit
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 p-2.5"
+                        className="custom-date-time-picker w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 p-2.5"
                     />
                 </div>
                 <div className="w-full max-w-xs">
