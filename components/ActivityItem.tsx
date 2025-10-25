@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { Activity } from '../types.ts';
 import { CATEGORIES, ICONS } from '../constants.tsx';
@@ -9,8 +10,10 @@ interface ActivityItemProps {
 
 const statusStyles = {
   'To Do': 'bg-slate-200 text-slate-700 dark:bg-slate-600 dark:text-slate-200',
+  'In Progress': 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300',
   'Pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300',
   'Completed': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300',
+  'Re-Open': 'bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-300',
 };
 
 const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onViewDetails }) => {
@@ -35,7 +38,7 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onViewDetails }) 
   return (
     <div
       onClick={() => onViewDetails(activity.id)}
-      className="grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors duration-200"
+      className="grid grid-cols-11 gap-4 px-4 py-3 items-center hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors duration-200"
     >
       <div className="col-span-5 flex items-center space-x-3">
         <span className="text-xl">{categoryIcon}</span>
@@ -51,9 +54,6 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onViewDetails }) 
       </div>
       <div className="col-span-2 text-center text-sm text-slate-600 dark:text-slate-300 hidden sm:block">
         {activity.category}
-      </div>
-      <div className="col-span-1 text-center font-bold text-sky-500 dark:text-sky-400">
-        {activity.points}
       </div>
       <div className="col-span-2 text-right text-sm text-slate-600 dark:text-slate-300">
         <span>{formatDate(activity.date)}</span>

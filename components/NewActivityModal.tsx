@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import React, { useState, useEffect } from 'react';
 import type { Activity, ActivityCategory } from '../types.ts';
 import { CATEGORIES } from '../constants.tsx';
 
 interface NewActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (newTaskData: Omit<Activity, 'id' | 'status' | 'assignee' | 'evidence'>) => void;
+  onSubmit: (newTaskData: Omit<Activity, 'id' | 'status' | 'assignee' | 'evidence' | 'reopened' | 'reopenEvidence'>) => void;
 }
 
 const NewActivityModal: React.FC<NewActivityModalProps> = ({ isOpen, onClose, onSubmit }) => {
@@ -15,34 +14,6 @@ const NewActivityModal: React.FC<NewActivityModalProps> = ({ isOpen, onClose, on
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [category, setCategory] = useState<ActivityCategory>('Project');
-  const [points, setPoints] = useState(10);
-  const [isSuggesting, setIsSuggesting] = useState(false);
-
-  const handleSuggestPoints = useCallback(async (taskTitle: string) => {
-    if (!taskTitle.trim()) return;
-    setIsSuggesting(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Based on the following task title, suggest an appropriate XP (Experience Points) reward. The task is "${taskTitle}". The XP should be between 5 and 100, reflecting the task's likely complexity and effort. Respond with only a single number.`;
-      
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
-
-      const suggestedPointsText = response.text.trim();
-      const suggestedPoints = parseInt(suggestedPointsText, 10);
-
-      if (!isNaN(suggestedPoints) && suggestedPoints >= 5 && suggestedPoints <= 100) {
-        setPoints(Math.round(suggestedPoints / 5) * 5); // Snap to nearest 5
-      }
-    } catch (error) {
-      console.error("Error suggesting points:", error);
-      setPoints(10); // Reset to default on error
-    } finally {
-      setIsSuggesting(false);
-    }
-  }, []);
 
   useEffect(() => {
     if (!isOpen) {
@@ -52,29 +23,12 @@ const NewActivityModal: React.FC<NewActivityModalProps> = ({ isOpen, onClose, on
         setDate('');
         setTime('');
         setCategory('Project');
-        setPoints(10);
-        setIsSuggesting(false);
       }, 200);
       return () => clearTimeout(timer);
     } else {
         setDate(new Date().toISOString().split('T')[0]);
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (title.trim().length < 5) {
-        setPoints(10); // Reset to default for short titles
-        return;
-    };
-    
-    const handler = setTimeout(() => {
-      handleSuggestPoints(title);
-    }, 800); // Debounce for 800ms after user stops typing
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [title, handleSuggestPoints]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,12 +39,11 @@ const NewActivityModal: React.FC<NewActivityModalProps> = ({ isOpen, onClose, on
       date,
       time: time || undefined,
       category,
-      points,
     });
     onClose();
   };
   
-  const isSubmitDisabled = !title.trim() || !date || isSuggesting;
+  const isSubmitDisabled = !title.trim() || !date;
 
   if (!isOpen) return null;
 
@@ -125,8 +78,7 @@ const NewActivityModal: React.FC<NewActivityModalProps> = ({ isOpen, onClose, on
                 <input type="time" id="time" value={time} onChange={(e) => setTime(e.target.value)} className="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5" />
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+             <div>
                 <label htmlFor="category" className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Category <span className="text-red-500">*</span></label>
                 <select id="category" value={category} onChange={(e) => setCategory(e.target.value as ActivityCategory)} className="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5">
                   {CATEGORIES.map(cat => (
@@ -134,23 +86,6 @@ const NewActivityModal: React.FC<NewActivityModalProps> = ({ isOpen, onClose, on
                   ))}
                 </select>
               </div>
-              <div>
-                <label htmlFor="points" className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">XP Reward (AI Generated)</label>
-                <div className="relative">
-                    <input type="number" id="points" value={points} readOnly className="bg-slate-200 dark:bg-slate-900/50 cursor-not-allowed border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5" />
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        {isSuggesting ? (
-                            <svg className="animate-spin h-5 w-5 text-violet-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        ) : (
-                             <span className="text-lg">✨</span>
-                        )}
-                    </div>
-                </div>
-              </div>
-            </div>
           </div>
           <div className="flex items-center justify-end p-6 space-x-2 border-t border-slate-200 dark:border-slate-700">
             <button type="button" onClick={onClose} className="text-slate-800 dark:text-white bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-700 rounded-lg text-sm px-5 py-2.5 text-center">

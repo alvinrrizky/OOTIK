@@ -1,13 +1,15 @@
+
 import React from 'react';
 
 interface SummaryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  title: string;
   summary: string;
   isLoading: boolean;
 }
 
-const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary, isLoading }) => {
+const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, title, summary, isLoading }) => {
   if (!isOpen) return null;
 
   return (
@@ -15,9 +17,9 @@ const SummaryModal: React.FC<SummaryModalProps> = ({ isOpen, onClose, summary, i
       <div className="absolute inset-0" onClick={onClose}></div>
       <div className={`relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl m-4 transform transition-all duration-300 ease-out ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between p-5 border-b border-slate-200 dark:border-slate-700">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">✨ Rekap Aktivitas Tim</h3>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white">{title}</h3>
           <button type="button" className="text-slate-500 dark:text-slate-400 bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" onClick={onClose} aria-label="Close modal">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
           </button>
         </div>
         <div className="p-6 max-h-[60vh] overflow-y-auto">

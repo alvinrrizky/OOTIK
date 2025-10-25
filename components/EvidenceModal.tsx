@@ -1,5 +1,5 @@
+
 import React, { useState, useEffect } from 'react';
-// Fix: Add .ts extension to import path.
 import type { Evidence } from '../types.ts';
 
 interface EvidenceModalProps {
@@ -7,9 +7,10 @@ interface EvidenceModalProps {
   onClose: () => void;
   onSubmit: (evidence: Evidence) => void;
   taskTitle: string;
+  mode: 'complete' | 'pend';
 }
 
-const EvidenceModal: React.FC<EvidenceModalProps> = ({ isOpen, onClose, onSubmit, taskTitle }) => {
+const EvidenceModal: React.FC<EvidenceModalProps> = ({ isOpen, onClose, onSubmit, taskTitle, mode = 'complete' }) => {
   const [activeTab, setActiveTab] = useState<'text' | 'file'>('text');
   const [textEvidence, setTextEvidence] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -20,14 +21,15 @@ const EvidenceModal: React.FC<EvidenceModalProps> = ({ isOpen, onClose, onSubmit
     if (!isOpen) {
       // Reset state on close
       const timer = setTimeout(() => {
-        setActiveTab('text');
         setTextEvidence('');
         setFile(null);
         setError('');
       }, 200);
       return () => clearTimeout(timer);
+    } else {
+        setActiveTab(mode === 'pend' ? 'text' : 'text');
     }
-  }, [isOpen]);
+  }, [isOpen, mode]);
 
   const handleFileSelect = (selectedFile: File | undefined) => {
     if (selectedFile) {
@@ -67,7 +69,7 @@ const EvidenceModal: React.FC<EvidenceModalProps> = ({ isOpen, onClose, onSubmit
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (activeTab === 'file' && file) {
+    if (activeTab === 'file' && file && mode === 'complete') {
       const reader = new FileReader();
       reader.onload = (loadEvent) => {
         onSubmit({
@@ -94,7 +96,7 @@ const EvidenceModal: React.FC<EvidenceModalProps> = ({ isOpen, onClose, onSubmit
       <div className="absolute inset-0" onClick={onClose}></div>
       <div className={`relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 ease-out ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between p-5 border-b border-slate-200 dark:border-slate-700">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Submit Evidence</h3>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white">{mode === 'complete' ? 'Submit Evidence' : 'Reason for Pending'}</h3>
           <button type="button" className="text-slate-500 dark:text-slate-400 bg-transparent hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" onClick={onClose} aria-label="Close modal">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
           </button>
@@ -103,31 +105,33 @@ const EvidenceModal: React.FC<EvidenceModalProps> = ({ isOpen, onClose, onSubmit
         <form onSubmit={handleSubmit}>
           <div className="p-6 space-y-4">
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-300 mb-1">You are completing the task:</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300 mb-1">{mode === 'complete' ? 'You are completing the task:' : 'You are setting this task to pending:'}</p>
               <h4 className="font-semibold text-lg text-slate-800 dark:text-white">{taskTitle}</h4>
             </div>
 
             <div className="border-b border-slate-200 dark:border-slate-700">
               <nav className="-mb-px flex space-x-4" aria-label="Tabs">
                 <button type="button" onClick={() => setActiveTab('text')} className={`${activeTab === 'text' ? 'border-violet-500 text-violet-600 dark:text-violet-400' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:hover:text-slate-200 dark:hover:border-slate-600'} whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}>
-                  Enter Link or Text
+                  {mode === 'complete' ? 'Enter Link or Text' : 'Enter Reason'}
                 </button>
-                <button type="button" onClick={() => setActiveTab('file')} className={`${activeTab === 'file' ? 'border-violet-500 text-violet-600 dark:text-violet-400' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:hover:text-slate-200 dark:hover:border-slate-600'} whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}>
-                  Upload File
-                </button>
+                {mode === 'complete' && (
+                    <button type="button" onClick={() => setActiveTab('file')} className={`${activeTab === 'file' ? 'border-violet-500 text-violet-600 dark:text-violet-400' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:hover:text-slate-200 dark:hover:border-slate-600'} whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}>
+                    Upload File
+                    </button>
+                )}
               </nav>
             </div>
             
             {activeTab === 'text' && (
               <div>
                 <label htmlFor="evidence" className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Evidence of Completion <span className="text-red-500">*</span>
+                  {mode === 'complete' ? 'Evidence of Completion' : 'Reason'} <span className="text-red-500">*</span>
                 </label>
-                <textarea id="evidence" value={textEvidence} onChange={(e) => setTextEvidence(e.target.value)} rows={4} className="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5" placeholder="e.g., Paste a link to the document, or describe the outcome." required></textarea>
+                <textarea id="evidence" value={textEvidence} onChange={(e) => setTextEvidence(e.target.value)} rows={4} className="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 block w-full p-2.5" placeholder={mode === 'complete' ? "e.g., Paste a link to the document, or describe the outcome." : "e.g., Waiting for approval from manager."} required></textarea>
               </div>
             )}
 
-            {activeTab === 'file' && (
+            {activeTab === 'file' && mode === 'complete' && (
               <div>
                 <label className="block mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">Upload File (JPG, PDF - Max 5MB) <span className="text-red-500">*</span></label>
                 <div onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop} className={`flex justify-center items-center w-full h-32 px-6 border-2 border-dashed rounded-lg cursor-pointer ${isDragging ? 'border-violet-500 bg-violet-50 dark:bg-violet-500/10' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 bg-slate-50 dark:bg-slate-700/50'}`}>
@@ -155,8 +159,8 @@ const EvidenceModal: React.FC<EvidenceModalProps> = ({ isOpen, onClose, onSubmit
             <button type="button" onClick={onClose} className="text-slate-800 dark:text-white bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-700 rounded-lg text-sm px-5 py-2.5 text-center">
               Cancel
             </button>
-            <button type="submit" disabled={isSubmitDisabled} className="text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:outline-none focus:ring-emerald-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:bg-emerald-300 dark:disabled:bg-emerald-800 disabled:cursor-not-allowed">
-              Submit & Complete
+            <button type="submit" disabled={isSubmitDisabled} className={`text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:cursor-not-allowed ${mode === 'complete' ? 'bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:outline-none focus:ring-emerald-800 disabled:bg-emerald-300 dark:disabled:bg-emerald-800' : 'bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:outline-none focus:ring-amber-800 disabled:bg-amber-300 dark:disabled:bg-amber-800'}`}>
+              {mode === 'complete' ? 'Submit & Complete' : 'Set to Pending'}
             </button>
           </div>
         </form>

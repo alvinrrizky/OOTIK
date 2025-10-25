@@ -1,13 +1,12 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-// Fix: Add .tsx extension to import path.
 import { ICONS } from '../constants.tsx';
-// Fix: Add .ts extension to import path.
-import type { User } from '../types.ts';
+import type { User, ViewType } from '../types.ts';
 
 interface HeaderProps {
   user: User;
-  activeView: 'dashboard' | 'calendar' | 'team';
-  onViewChange: (view: 'dashboard' | 'calendar' | 'team') => void;
+  activeView: ViewType;
+  onViewChange: (view: ViewType) => void;
   onNewTaskClick: () => void;
   theme: string;
   toggleTheme: () => void;
@@ -17,9 +16,9 @@ const Header: React.FC<HeaderProps> = ({ user, activeView, onViewChange, onNewTa
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const navItems = [
+  const navItems: {id: ViewType, label: string}[] = [
     { id: 'dashboard', label: 'Dashboard' },
-    { id: 'calendar', label: 'Calendar' },
+    { id: 'history', label: 'My Activity' },
     { id: 'team', label: 'Team' },
   ];
   
@@ -34,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ user, activeView, onViewChange, onNewTa
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 transition-colors duration-300">
+    <header className="sticky top-0 z-40 w-full bg-transparent dark:bg-transparent border-b border-slate-200 dark:border-slate-700 transition-colors duration-300">
       <div className="max-w-screen-2xl mx-auto px-8">
         <div className="flex items-center justify-between h-20">
           
@@ -53,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ user, activeView, onViewChange, onNewTa
             {navItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => onViewChange(item.id as 'dashboard' | 'calendar' | 'team')}
+                onClick={() => onViewChange(item.id)}
                 className={`
                   px-4 py-2 rounded-lg text-md font-semibold transition-colors
                   ${activeView === item.id 
@@ -84,7 +83,7 @@ const Header: React.FC<HeaderProps> = ({ user, activeView, onViewChange, onNewTa
                 <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full border-2 border-slate-300 dark:border-slate-600" />
                  <div className="hidden lg:block">
                     <p className="font-semibold text-sm text-slate-800 dark:text-slate-100">{user.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Level {user.level}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate" title={user.position}>{user.position}</p>
                  </div>
                 <svg className={`w-5 h-5 text-slate-500 dark:text-slate-400 transition-transform hidden lg:block ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

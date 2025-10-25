@@ -1,5 +1,5 @@
+
 import React, { useState, useEffect } from 'react';
-// Fix: Add .ts extension to import path.
 import type { Activity } from '../types.ts';
 
 interface DashboardChartProps {
@@ -15,11 +15,11 @@ const DashboardChart: React.FC<DashboardChartProps> = ({ activities }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const today = new Date();
+  const today = new Date('2025-10-25T12:00:00Z');
   const todayDateString = today.toISOString().split('T')[0];
 
   const weekData = Array.from({ length: 7 }).map((_, i) => {
-    const date = new Date();
+    const date = new Date(today);
     date.setDate(today.getDate() - (6 - i));
     const day = date.toLocaleDateString('en-US', { weekday: 'short' });
     const dateString = date.toISOString().split('T')[0];

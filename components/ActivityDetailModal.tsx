@@ -7,11 +7,14 @@ interface ActivityDetailModalProps {
   onClose: () => void;
   activity: Activity | null;
   onComplete: (id: number) => void;
+  onPending: (id: number) => void;
+  onSetInProgress: (id: number) => void;
   onReopen: (id: number) => void;
+  onBackToTodo: (id: number) => void;
   onDelete: (id: number) => void;
 }
 
-const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClose, activity, onComplete, onReopen, onDelete }) => {
+const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClose, activity, onComplete, onPending, onSetInProgress, onReopen, onBackToTodo, onDelete }) => {
   if (!isOpen || !activity) return null;
 
   const categoryIcon = CATEGORIES.find(c => c.name === activity.category)?.icon ?? '📝';
@@ -73,15 +76,25 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClo
               </p>
             </div>
             <div>
-              <p className="font-semibold text-slate-500 dark:text-slate-400">XP Reward</p>
-              <p className="font-bold text-sky-500 mt-1">{activity.points} XP</p>
+              <p className="font-semibold text-slate-500 dark:text-slate-400">Category</p>
+              <p className="font-bold text-slate-800 dark:text-slate-100 mt-1">{activity.category}</p>
             </div>
             <div>
               <p className="font-semibold text-slate-500 dark:text-slate-400">Status</p>
               <p className="font-bold text-slate-800 dark:text-slate-100 mt-1">{activity.status}</p>
             </div>
           </div>
-          {activity.status === 'Completed' && activity.evidence && (
+
+          {activity.status === 'Pending' && activity.evidence && (
+            <div>
+              <h4 className="text-md font-bold text-slate-800 dark:text-slate-100 mb-2">Reason for Pending</h4>
+              <div className="p-3 bg-yellow-50 dark:bg-yellow-500/10 rounded-lg border border-yellow-200 dark:border-yellow-500/20">
+                <p className="text-sm text-yellow-700 dark:text-yellow-300 italic">"{activity.evidence.content}"</p>
+              </div>
+            </div>
+          )}
+
+          {(activity.status === 'Completed' || activity.status === 'Re-Open') && activity.evidence && (
             <div>
               <h4 className="text-md font-bold text-slate-800 dark:text-slate-100 mb-2">Evidence of Completion</h4>
               <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg border border-emerald-200 dark:border-emerald-500/20">
@@ -104,6 +117,30 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClo
               </div>
             </div>
           )}
+
+          {activity.status === 'Completed' && activity.reopenEvidence && (
+            <div>
+                <h4 className="text-md font-bold text-slate-800 dark:text-slate-100 mb-2">Evidence of Re-Open</h4>
+                <div className="p-3 bg-sky-50 dark:bg-sky-500/10 rounded-lg border border-sky-200 dark:border-sky-500/20">
+                    {activity.reopenEvidence.type === 'file' ? (
+                        <a 
+                        href={activity.reopenEvidence.content} 
+                        download={activity.reopenEvidence.fileName}
+                        className="flex items-center space-x-2 text-sm text-sky-700 dark:text-sky-300 hover:underline"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            <span>{activity.reopenEvidence.fileName}</span>
+                        </a>
+                    ) : isUrl(activity.reopenEvidence.content) ? (
+                        <a href={activity.reopenEvidence.content} target="_blank" rel="noopener noreferrer" className="text-sm text-sky-700 dark:text-sky-300 hover:underline break-all">
+                            {activity.reopenEvidence.content}
+                        </a>
+                    ) : (
+                        <p className="text-sm text-sky-700 dark:text-sky-300 italic">"{activity.reopenEvidence.content}"</p>
+                    )}
+                </div>
+            </div>
+          )}
         </div>
         <div className="flex items-center justify-between p-6 space-x-2 border-t border-slate-200 dark:border-slate-700">
           <button
@@ -114,14 +151,45 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({ isOpen, onClo
           </button>
           
           <div className="flex items-center space-x-2">
-              {activity.status !== 'Completed' ? (
-                <button
-                  onClick={() => onComplete(activity.id)}
-                  className="text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                >
-                  Complete Task
-                </button>
-              ) : (
+              {activity.status === 'To Do' && (
+                <>
+                  <button onClick={() => onSetInProgress(activity.id)} className="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    In Progress
+                  </button>
+                  <button onClick={() => onPending(activity.id)} className="text-white bg-amber-500 hover:bg-amber-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    Pending
+                  </button>
+                  <button onClick={() => onComplete(activity.id)} className="text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    Complete Task
+                  </button>
+                </>
+              )}
+              {activity.status === 'In Progress' && (
+                <>
+                  <button onClick={() => onBackToTodo(activity.id)} className="text-slate-800 dark:text-white bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-700 rounded-lg text-sm px-5 py-2.5 text-center">
+                    Back to To Do
+                  </button>
+                  <button onClick={() => onPending(activity.id)} className="text-white bg-amber-500 hover:bg-amber-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    Pending
+                  </button>
+                  <button onClick={() => onComplete(activity.id)} className="text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    Complete Task
+                  </button>
+                </>
+              )}
+              {activity.status === 'Re-Open' && (
+                  <button onClick={() => onComplete(activity.id)} className="text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    Complete Task
+                  </button>
+              )}
+              {activity.status === 'Pending' && (
+                <>
+                  <button onClick={() => onSetInProgress(activity.id)} className="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    In Progress
+                  </button>
+                </>
+              )}
+              {activity.status === 'Completed' && !activity.reopened && (
                 <button
                   onClick={() => onReopen(activity.id)}
                   className="text-white bg-amber-500 hover:bg-amber-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center"

@@ -12,6 +12,13 @@
     <style>
       body {
         font-family: 'Inter', sans-serif;
+        /* Light mode background */
+        background-color: #f1f5f9; /* slate-100 */
+        transition: background-color 0.3s ease-in-out;
+      }
+      html.dark body {
+        /* Dark mode background */
+        background-color: #0f172a; /* slate-900 */
       }
     </style>
   <script type="importmap">
@@ -21,13 +28,14 @@
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
-    "marked": "https://aistudiocdn.com/marked@^16.4.1"
+    "marked": "https://aistudiocdn.com/marked@^16.4.1",
+    "markdown-it": "https://aistudiocdn.com/markdown-it@^14.1.0"
   }
 }
 </script>
 <script>
     // On page load or when changing themes, best to add inline in `head` to avoid FOUC
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (localStorage.theme === 'dark') {
       document.documentElement.classList.add('dark')
     } else {
       document.documentElement.classList.remove('dark')
